@@ -1,4 +1,4 @@
-   import base64
+import base64
 import streamlit as st
 import anthropic
 from fpdf import FPDF
