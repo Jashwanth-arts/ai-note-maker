@@ -32,7 +32,10 @@ def make_notes(img_bytes, media_type, lang):
             ],
         }],
     )
-    return reply.content[0].text
+    text = "".join(b.text for b in reply.content if b.type == "text")
+    if not text:
+        text = "Sorry, I could not read this photo. Please try a clearer photo."
+    return text
 
 
 def make_pdf(text):
