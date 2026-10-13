@@ -1,0 +1,299 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>AI Notes Maker</title>
+<style>
+:root{--navy:#12194a;--navy2:#232d7a;--pur:#7c3aed;--lil:#ede9fe;--bg:#f3f2fb;--tx:#1b1f45;--mu:#686c93;--ok:#15803d;--bad:#c62828;--gold:#f5b301}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.5 system-ui,"Noto Sans","Noto Sans Oriya","Noto Sans Devanagari",sans-serif}
+header{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:8px;padding:calc(10px + env(safe-area-inset-top)) 14px 12px;background:linear-gradient(135deg,var(--navy),var(--pur));color:#fff}
+header h1{flex:1;margin:0;font-size:19px;font-weight:700}
+header button{background:rgba(255,255,255,.16);border:0;color:#fff;border-radius:12px;width:38px;height:38px;font-size:18px}
+main{padding:14px 14px calc(90px + env(safe-area-inset-bottom));max-width:720px;margin:auto}
+nav{position:fixed;bottom:0;left:0;right:0;display:flex;background:#fff;border-top:1px solid #e1def5;padding:6px 4px calc(6px + env(safe-area-inset-bottom));z-index:5}
+nav button{flex:1;border:0;background:none;color:var(--mu);font-size:11px;padding:4px 0}
+nav button b{display:block;font-size:21px;font-weight:400}
+nav button.on{color:var(--pur);font-weight:700}
+nav .plus b{background:var(--pur);color:#fff;width:46px;height:46px;border-radius:50%;margin:-22px auto 0;line-height:46px;box-shadow:0 4px 12px #7c3aed66}
+.card{background:#fff;border-radius:18px;padding:16px;margin:0 0 12px;box-shadow:0 1px 2px #12194a14}
+.hero{background:var(--navy);color:#fff;border-radius:22px;padding:20px;margin-bottom:12px}
+.hero h2{margin:0 0 4px;font-size:22px}.hero p{margin:0;opacity:.8}
+h3{margin:0 0 8px;font-size:17px;color:var(--navy)}
+label{display:block;font-weight:600;font-size:14px;margin:12px 0 5px}
+input,select,textarea{width:100%;padding:12px;border:1.5px solid #d6d2f0;border-radius:12px;font:inherit;background:#fff;color:var(--tx)}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--pur);border-color:var(--pur)}
+.btn{display:block;width:100%;border:0;border-radius:14px;padding:14px;font:700 16px inherit;background:var(--pur);color:#fff;margin-top:12px}
+.btn.sec{background:var(--lil);color:var(--pur)}.btn.sm{display:inline-block;width:auto;padding:8px 14px;font-size:14px;margin:6px 6px 0 0}
+.btn.red{background:#fde8e8;color:var(--bad)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1.5px solid #d6d2f0;background:#fff;border-radius:20px;padding:7px 13px;font-size:14px;color:var(--tx)}
+.chip.on{background:var(--pur);border-color:var(--pur);color:#fff}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tile{background:#fff;border-radius:18px;padding:16px;border:0;text-align:left;font:inherit;color:var(--tx);box-shadow:0 1px 2px #12194a14}
+.tile b{display:block;font-size:26px}.tile span{font-size:13px;color:var(--mu)}
+.mode{border:2px solid #d6d2f0;border-radius:16px;padding:12px;background:#fff;text-align:left;font:inherit;color:var(--tx)}
+.mode.on{border-color:var(--pur);background:var(--lil)}.mode b{display:block}.mode span{font-size:13px;color:var(--mu)}
+.thumbs{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.thumbs div{position:relative}.thumbs img{width:76px;height:76px;object-fit:cover;border-radius:12px}
+.thumbs button{position:absolute;top:-6px;right:-6px;width:22px;height:22px;border-radius:50%;border:0;background:var(--bad);color:#fff;font-size:12px}
+.tabs{display:flex;gap:6px;overflow-x:auto;margin-bottom:12px}
+.tabs button{border:0;border-radius:20px;padding:8px 14px;background:#e4e0f8;color:var(--navy);white-space:nowrap;font:600 14px inherit}
+.tabs button.on{background:var(--navy);color:#fff}
+.kw{padding:8px 0;border-bottom:1px solid #eeecfa}.kw:last-child{border:0}.kw b{color:var(--pur)}
+ul.pts{margin:0;padding-left:20px}ul.pts li{margin:6px 0}
+.notes p{margin:6px 0}.notes h4{margin:14px 0 4px;color:var(--navy);font-size:17px}.notes li{margin:4px 0}
+.dgm{text-align:center}.dgm .ctr{display:inline-block;background:var(--navy);color:#fff;border-radius:20px;padding:10px 18px;font-weight:700;margin-bottom:10px}
+.dgm .br{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;text-align:left}
+.dgm .br div{border:2px solid var(--pur);border-radius:14px;padding:8px 10px;font-size:14px}.dgm .br b{color:var(--pur);display:block}
+.flow{display:flex;flex-direction:column;align-items:center}
+.flow div{background:var(--lil);border:2px solid var(--pur);border-radius:14px;padding:9px 14px;text-align:center;width:90%}
+.flow i{font-style:normal;color:var(--pur);font-size:20px;line-height:1.1}
+.opt{display:block;width:100%;text-align:left;border:2px solid #d6d2f0;background:#fff;border-radius:14px;padding:12px;margin:8px 0;font:inherit;color:var(--tx)}
+.opt.good{border-color:var(--ok);background:#e6f6ea}.opt.wrong{border-color:var(--bad);background:#fdeaea}
+.bar{height:10px;background:#e4e0f8;border-radius:6px;overflow:hidden}.bar i{display:block;height:100%;background:var(--pur)}
+.row{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.mut{color:var(--mu);font-size:13px}
+.flash{min-height:180px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:22px;font-weight:700;background:var(--navy);color:#fff;border-radius:22px;padding:20px;border:0;width:100%}
+.flash.back{background:var(--pur);font-size:17px;font-weight:500}
+.msg{max-width:86%;padding:10px 14px;border-radius:18px;margin:8px 0;white-space:pre-wrap}
+.msg.u{background:var(--pur);color:#fff;margin-left:auto;border-bottom-right-radius:4px}
+.msg.a{background:#fff;border-bottom-left-radius:4px}
+.warn{background:#fff6dc;border:1px solid var(--gold)}
+.av{border-radius:50%;background:var(--pur);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;overflow:hidden;flex:none;border:3px solid #ffffff66}.av img{width:100%;height:100%;object-fit:cover}
+#busy{position:fixed;inset:0;background:#12194acc;color:#fff;display:none;align-items:center;justify-content:center;flex-direction:column;z-index:20;text-align:center;padding:20px}
+#busy.on{display:flex}.spin{width:44px;height:44px;border:5px solid #ffffff44;border-top-color:#fff;border-radius:50%;animation:s 1s linear infinite;margin-bottom:12px}@keyframes s{to{transform:rotate(360deg)}}
+#toast{position:fixed;left:50%;bottom:100px;transform:translateX(-50%);background:var(--navy);color:#fff;padding:10px 18px;border-radius:20px;z-index:30;display:none;max-width:88%;text-align:center}
+.flow{gap:4px}.flow div.dec{border-color:var(--gold);background:#fff6dc}.flow small{color:var(--mu);font-weight:600}.dg{border-top:1px solid #eeecfa;padding-top:10px;margin-top:10px}
+</style></head><body>
+<div id="app"></div><div id="busy"><div class="spin"></div><div id="bmsg"></div></div><div id="toast"></div>
+<input type="file" id="gal" accept="image/*" multiple hidden onchange="addFiles(this.files)">
+<input type="file" id="pic" accept="image/*" hidden onchange="picFile(this.files[0])">
+<script>
+const $=s=>document.querySelector(s);
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const ld=(k,d)=>{try{const v=JSON.parse(localStorage.getItem(k));return v==null?d:v}catch(e){return d}};
+let S={profile:ld('profile',null),notes:ld('notes',[]),hist:ld('hist',[]),quiz:ld('quiz',[]),chat:ld('chat',[]),key:ld('key',''),model:ld('model','claude-haiku-5-5')};
+const persist=()=>{for(const k in S)localStorage.setItem(k,JSON.stringify(S[k]))};
+const SUBJ=c=>{const b=['English','Hindi','Odia','Maths'];
+ if(c<=5)return[...b,'EVS','Computer','Drawing','General Knowledge'];
+ if(c<=8)return[...b,'Science','Social Science','Sanskrit','Computer'];
+ if(c<=10)return[...b,'Science','Physics','Chemistry','Biology','History','Geography','Civics','Economics','Sanskrit','Computer'];
+ return[...b,'Physics','Chemistry','Biology','Accountancy','Business Studies','Economics','Political Science','History','Geography','Computer Science']};
+let V={v:'home'},H=[],PF=null,F={subject:'',chapter:'',mode:'clean',lang:'English'},imgs=[],TB='ov',Q=null,FC=null,RF='All',busyChat=false;
+const today=()=>new Date().toISOString().slice(0,10);
+const toast=m=>{const t=$('#toast');t.textContent=m;t.style.display='block';clearTimeout(toast.t);toast.t=setTimeout(()=>t.style.display='none',2800)};
+const busy=m=>{$('#bmsg').textContent=m||'';$('#busy').classList.toggle('on',!!m)};
+function go(v,a,b){H.push(V);V={v,a,b};render();scrollTo(0,0)}
+function tab(v){H=[];V={v};render();scrollTo(0,0)}
+function back(){V=H.pop()||{v:'home'};render()}
+function log(type,text){S.hist.unshift({t:Date.now(),type,text});S.hist=S.hist.slice(0,200);persist()}
+function render(){
+ if(!S.profile&&V.v!=='profile'){V={v:'profile'};H=[]}
+ const M={profile:vProfile,home:vHome,create:vCreate,note:vNote,notes:vNotes,tutor:vTutor,revise:vRevise,progress:vProgress,settings:vSettings,quiz:vQuiz,cards:vCards};
+ const T={profile:'Your profile',home:'AI Notes Maker',create:'Make notes',note:'Notes',notes:'Saved notes',tutor:'AI Tutor',revise:'Exam revision',progress:'My progress',settings:'Settings',quiz:'Quiz',cards:'Flashcards'};
+ const top=['home','notes','tutor','progress','revise'].includes(V.v);
+ const nb=(v,i,l,c)=>`<button class="${c||''} ${V.v===v?'on':''}" onclick="tab('${v}')"><b>${i}</b>${l}</button>`;
+ $('#app').innerHTML=`<header>${top||V.v==='profile'&&!S.profile?'':'<button onclick="back()">←</button>'}<h1>${T[V.v]}</h1>${S.profile?'<button onclick="go(\'settings\')">⚙</button>':''}</header><main>${M[V.v]()}</main>${S.profile?`<nav>${nb('home','🏠','Home')}${nb('notes','📚','Notes')}${nb('create','＋','Create','plus').replace("tab('create')","tab('create')")}${nb('tutor','💬','Tutor')}${nb('progress','📈','Progress')}</nav>`:''}`;
+ if(V.v==='tutor'){const c=$('#chat');if(c)scrollTo(0,document.body.scrollHeight)}
+}
+/* PROFILE */
+function vProfile(){
+ if(!PF)PF=S.profile?JSON.parse(JSON.stringify(S.profile)):{name:'',school:'',cls:6,subjects:SUBJ(6)};
+ const all=[...new Set([...SUBJ(PF.cls),...PF.subjects])];
+ return`<div class="card"><div style="display:flex;justify-content:center">${av(PF.photo,PF.name,96)}</div><div style="text-align:center"><button class="btn sm sec" onclick="pickPhoto()">📷 ${PF.photo?'Change':'Add'} photo</button>${PF.photo?'<button class="btn sm red" onclick="PF.photo=\'\';render()">Remove</button>':''}</div><label>Your name</label><input value="${esc(PF.name)}" oninput="PF.name=this.value" placeholder="e.g. Rajvika">
+ <label>School</label><input value="${esc(PF.school)}" oninput="PF.school=this.value" placeholder="School name">
+ <label>Class</label><select onchange="PF.cls=+this.value;PF.subjects=SUBJ(PF.cls);render()">${[...Array(12)].map((_,i)=>`<option ${PF.cls===i+1?'selected':''} value="${i+1}">Class ${i+1}</option>`).join('')}</select>
+ <label>My subjects (tap to select)</label><div class="chips">${all.map(s=>`<button class="chip ${PF.subjects.includes(s)?'on':''}" onclick="togSub(this.dataset.s)" data-s="${esc(s)}">${esc(s)}</button>`).join('')}</div>
+ <label>Add another subject</label><div class="row"><input id="ns" placeholder="Subject name"><button class="btn sm" style="margin:0" onclick="addSub()">Add</button></div></div>
+ <button class="btn" onclick="saveProfile()">Save profile</button>`}
+const togSub=s=>{PF.subjects=PF.subjects.includes(s)?PF.subjects.filter(x=>x!==s):[...PF.subjects,s];render()};
+const addSub=()=>{const v=$('#ns').value.trim();if(v&&!PF.subjects.includes(v)){PF.subjects.push(v);render()}};
+function saveProfile(){if(!PF.name.trim())return toast('Please type your name');if(!PF.subjects.length)return toast('Select at least one subject');
+ S.profile=PF;PF=null;persist();toast('Profile saved');tab('home')}
+/* HOME */
+function vHome(){const p=S.profile,st=stats();
+ return`<div class="hero row" style="justify-content:flex-start;gap:14px">${av(p.photo,p.name,70)}<div><h2>Hello, ${esc(p.name)}!</h2><p>Class ${p.cls} · ${esc(p.school||'Student')}</p></div></div>
+ ${S.key?'':`<div class="card warn"><b>One-time setup needed</b><div class="mut">Add your Claude API key so the AI can read photos.</div><button class="btn sm" onclick="go('settings')">Add API key</button></div>`}
+ <div class="grid2"><button class="tile" onclick="tab('create')"><b>📷</b>Make notes<br><span>Photo to study material</span></button>
+ <button class="tile" onclick="tab('revise')"><b>🎯</b>Exam revision<br><span>Cards, quiz, key points</span></button>
+ <button class="tile" onclick="tab('tutor')"><b>💬</b>AI Tutor<br><span>Ask any doubt</span></button>
+ <button class="tile" onclick="tab('notes')"><b>📚</b>Saved notes<br><span>${S.notes.length} saved</span></button></div>
+ <div class="card" style="margin-top:12px"><div class="row"><div><h3>Study streak</h3><span class="mut">${st.streak} day${st.streak===1?'':'s'} in a row</span></div><div style="font-size:30px">🔥</div></div></div>
+ <div class="card"><h3>Recent activity</h3>${S.hist.slice(0,4).map(h=>`<div class="mut">${ico(h.type)} ${esc(h.text)}</div>`).join('')||'<span class="mut">Nothing yet. Make your first notes!</span>'}</div>`}
+const ico=t=>({note:'📝',quiz:'🎯',tutor:'💬',rev:'📖'}[t]||'•');
+/* CREATE */
+function vCreate(){const p=S.profile;if(!F.subject||!p.subjects.includes(F.subject))F.subject=p.subjects[0];
+ return`<div class="card"><label>Subject</label><div class="chips">${p.subjects.map(s=>`<button class="chip ${F.subject===s?'on':''}" data-s="${esc(s)}" onclick="F.subject=this.dataset.s;render()">${esc(s)}</button>`).join('')}</div>
+ <label>Chapter name</label><input value="${esc(F.chapter)}" oninput="F.chapter=this.value" placeholder="e.g. Photosynthesis">
+ <label>What do you want?</label><div class="grid2"><button class="mode ${F.mode==='clean'?'on':''}" onclick="F.mode='clean';render()"><b>✍️ Clean Handwriting</b><span>Tidy, correct notes</span></button>
+ <button class="mode ${F.mode==='study'?'on':''}" onclick="F.mode='study';render()"><b>🎓 Study Guide</b><span>Summary, keywords, diagrams, MCQs</span></button></div>
+ <label>Output language</label><select onchange="F.lang=this.value">${['English','Hindi','Odia'].map(l=>`<option ${F.lang===l?'selected':''}>${l}</option>`).join('')}</select></div>
+ <div class="card"><h3>Photos (up to 6)</h3><div class="row" style="justify-content:flex-start"><button class="btn sm" onclick="takePhoto()">📷 Camera</button><button class="btn sm sec" onclick="$('#gal').click()">🖼 Gallery</button></div>
+ <div class="thumbs">${imgs.map((u,i)=>`<div><img src="${u}"><button onclick="imgs.splice(${i},1);render()">✕</button></div>`).join('')}</div>${imgs.length?'':'<div class="mut" style="margin-top:8px">Add clear, well-lit photos of the notebook or textbook pages.</div>'}</div>
+ <button class="btn" onclick="generate()">Generate ✨</button>`}
+const readFile=f=>new Promise(r=>{const x=new FileReader();x.onload=()=>r(x.result);x.readAsDataURL(f)});
+const shrink=(u,m=1500,q=.8)=>new Promise(res=>{const i=new Image();i.onload=()=>{const s=Math.min(1,m/Math.max(i.width,i.height)),c=document.createElement('canvas');c.width=i.width*s;c.height=i.height*s;c.getContext('2d').drawImage(i,0,0,c.width,c.height);res(c.toDataURL('image/jpeg',q))};i.onerror=()=>res(null);i.src=u});
+async function addFiles(l){for(const f of l){if(imgs.length>=6){toast('Maximum 6 photos');break}const u=await shrink(await readFile(f));if(u)imgs.push(u)}$('#gal').value='';render()}
+async function takePhoto(){const C=window.Capacitor&&Capacitor.Plugins&&Capacitor.Plugins.Camera;
+ if(!C)return $('#gal').click();
+ try{const p=await C.getPhoto({quality:80,resultType:'base64',source:'CAMERA'});const u=await shrink('data:image/'+(p.format||'jpeg')+';base64,'+p.base64String);if(u&&imgs.length<6)imgs.push(u);render()}catch(e){}}
+/* AI */
+async function claude(system,messages,max){
+ if(!S.key)throw new Error('Please add your API key in Settings (⚙).');
+ const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'content-type':'application/json','x-api-key':S.key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:S.model,max_tokens:max||4000,system,messages})});
+ const j=await r.json();if(!r.ok)throw new Error((j.error&&j.error.message)||('Error '+r.status));
+ return j.content.filter(b=>b.type==='text').map(b=>b.text).join('')}
+async function generate(){
+ if(!F.chapter.trim())return toast('Type the chapter name first');
+ if(!imgs.length)return toast('Add at least one photo');
+ const p=S.profile,study=F.mode==='study';
+ const shape=study?`{"title":"","summary":"","keywords":[{"term":"","meaning":""}],"points":[""],"diagram":{"center":"","branches":[{"label":"","items":[""]}]},"flowchart":[{"t":"step text","k":"start|step|decision|end","branches":[{"label":"Yes","to":1}]}],"flowchart_from_photo":false,"diagrams":[{"name":"","what_it_shows":"","parts":[{"label":"","meaning":""}],"questions":[{"q":"","a":""}],"photo_page":1}],"mcqs":[{"q":"","options":["","","",""],"answer":0,"why":""}],"questions":[{"q":"","a":""}]}`
+ :`{"title":"","clean_notes":"lines: '## ' heading, '- ' bullet, plain text","summary":"","flowchart":[{"t":"step text","k":"start|step|decision|end","branches":[{"label":"Yes","to":1}]}],"flowchart_from_photo":false,"diagrams":[{"name":"","what_it_shows":"","parts":[{"label":"","meaning":""}],"questions":[{"q":"","a":""}],"photo_page":1}]}`;
+ const flowRule=`FLOWCHART: if the pages contain a flowchart (boxes and arrows, steps in sequence, or decision diamonds), COPY it faithfully: list every box in the same order as drawn, keep the student's own wording (only fix spelling), set "k" to "decision" for decision diamonds with "branches" giving each label (for example Yes or No) and "to" = the step number (1 = first box in your list) it leads to, use "start" and "end" when shown, and set "flowchart_from_photo" to true. `+(study?`If there is no flowchart on the pages, create a clear 4-8 step flowchart of a process or sequence from the chapter and set "flowchart_from_photo" to false.`:`If there is no flowchart on the pages, use [] and set "flowchart_from_photo" to false.`);
+ const diagRule=`DIAGRAMS: for every real picture or diagram on the pages (maximum 4; skip decorations) give its "name", "what_it_shows" (1-2 simple sentences), "parts" (every label or part you can read, with a simple meaning), 2 "questions" with short answers, and "photo_page" (the page number it is on). If a label is unreadable write "label not clear" rather than guessing. If there are no diagrams use [].`;
+ const rules=(study?`Create: summary (5-7 sentences), 8-12 keywords with simple meanings, 8-12 important points, a concept diagram (center + 3-5 branches with 2-4 items), EXACTLY 10 MCQs (4 options, "answer" is the 0-based index, short "why"), and 6 extra revision questions with short answers. `:`Rewrite the handwriting as clean, correct, well-organised notes with headings and bullet points, fixing spelling. Keep the student's content; do not add new topics. Add a short summary. `)+flowRule+' '+diagRule;
+ const sys=`You are a kind expert teacher for a Class ${p.cls} student. Read the photos (handwriting or textbook pages) for subject "${F.subject}", chapter "${F.chapter}". ${rules} Write all text in ${F.lang}, in simple words suited to Class ${p.cls}. Reply with ONLY valid JSON, no markdown fences, in this exact shape: ${shape}`;
+ const content=[];imgs.forEach((u,i)=>{content.push({type:'text',text:'Page '+(i+1)+':'});content.push({type:'image',source:{type:'base64',media_type:'image/jpeg',data:u.split(',')[1]}})});
+ content.push({type:'text',text:'Make the JSON now.'});
+ busy(study?'Building your study guide… about 30-60 seconds':'Cleaning your notes…');
+ try{const t=await claude(sys,[{role:'user',content}],study?8000:5000);
+  const d=JSON.parse(t.slice(t.indexOf('{'),t.lastIndexOf('}')+1));
+  const n={id:Date.now(),hasPh:true,cls:p.cls,subject:F.subject,chapter:F.chapter.trim(),mode:F.mode,lang:F.lang,date:today(),d};
+  await pPut(n.id,await Promise.all(imgs.map(u=>shrink(u,1100,.65))));S.notes.unshift(n);log('note',`Made ${study?'study guide':'clean notes'}: ${n.subject} – ${n.chapter}`);
+  imgs=[];F.chapter='';busy();TB=study?'ov':'cn';H=[{v:'home'}];V={v:'note',a:n.id};render()}
+ catch(e){busy();toast(e.message&&e.message.includes('JSON')?'Could not read the AI reply. Try clearer photos.':e.message)}}
+/* NOTE VIEW */
+const fmt=t=>String(t||'').split('\n').map(l=>l.startsWith('## ')?`<h4>${esc(l.slice(3))}</h4>`:l.startsWith('- ')?`<li>${esc(l.slice(2))}</li>`:l.trim()?`<p>${esc(l)}</p>`:'').join('');
+const getN=id=>S.notes.find(n=>n.id===id);
+function vNote(){const n=getN(V.a);if(!n)return'<div class="card">Note not found.</div>';const d=n.d;
+ const hasV=fcSteps(d).length||(d.diagrams||[]).length,tabs=n.mode==='study'?[['ov','Summary'],['vis','Diagrams'],['qz','MCQs'],['qa','Revision Q&A']]:[['cn','Clean notes'],['sm','Summary'],...(hasV?[['vis','Diagrams & flow']]:[])];
+ if(!tabs.find(t=>t[0]===TB))TB=tabs[0][0];
+ let h=`<div class="card"><h3>${esc(d.title||n.chapter)}</h3><div class="mut">${esc(n.subject)} · ${esc(n.chapter)} · ${n.date}</div></div><button class="btn" style="margin:0 0 12px" onclick="savePDF(${n.id})">📄 Download PDF</button>${n.hasPh?'<label style="margin:-4px 0 12px;font-weight:400"><input type="checkbox" id="incph" checked style="width:auto"> Include my original photos in the PDF</label>':''}<div class="tabs">${tabs.map(t=>`<button class="${TB===t[0]?'on':''}" onclick="TB='${t[0]}';render()">${t[1]}</button>`).join('')}</div>`;
+ if(TB==='cn')h+=`<div class="card notes">${fmt(d.clean_notes)}</div>`;
+ if(TB==='sm')h+=`<div class="card"><h3>Summary</h3><p>${esc(d.summary)}</p></div>`;
+ if(TB==='ov')h+=`<div class="card"><h3>Summary</h3><p>${esc(d.summary)}</p></div><div class="card"><h3>Important points</h3><ul class="pts">${(d.points||[]).map(p=>`<li>${esc(p)}</li>`).join('')}</ul></div><div class="card"><h3>Keywords</h3>${(d.keywords||[]).map(k=>`<div class="kw"><b>${esc(k.term)}</b> – ${esc(k.meaning)}</div>`).join('')}</div>`;
+ if(TB==='vis'){const g=d.diagram,L=fcSteps(d);
+  if(g&&g.center)h+=`<div class="card dgm"><h3>Concept diagram</h3><div class="ctr">${esc(g.center)}</div><div class="br">${(g.branches||[]).map(b=>`<div><b>${esc(b.label)}</b>${(b.items||[]).map(i=>'• '+esc(i)).join('<br>')}</div>`).join('')}</div></div>`;
+  if(L.length)h+=`<div class="card"><h3>Flowchart</h3><div class="mut" style="margin-bottom:8px">${d.flowchart_from_photo?'✔ Copied from your page':'Made by AI from the chapter'}</div><div class="flow">${flowHTML(d)}</div></div>`;
+  (d.diagrams||[]).forEach(x=>h+=diagHTML(x));
+  if(!(g&&g.center)&&!L.length&&!(d.diagrams||[]).length)h+='<div class="card mut">No diagrams or flowcharts found on these pages.</div>'}
+ if(TB==='qz')h+=`<div class="card"><h3>${(d.mcqs||[]).length} MCQs</h3><p class="mut">Test yourself and track your score.</p><button class="btn" onclick="startQuiz(${n.id})">Start quiz</button></div>`;
+ if(TB==='qa')h+=`<div class="card">${(d.questions||[]).map((q,i)=>`<div class="kw"><b>Q${i+1}. ${esc(q.q)}</b><br><details><summary class="mut">Show answer</summary>${esc(q.a)}</details></div>`).join('')}</div>`;
+ h+=`<div class="card"><button class="btn sm" onclick="shareNote(${n.id})">📤 Share</button>${n.mode==='study'?`<button class="btn sm sec" onclick="startCards(${n.id})">🃏 Flashcards</button>`:''}<button class="btn sm sec" onclick="go('tutor',${n.id})">💬 Ask tutor</button><button class="btn sm red" onclick="delNote(${n.id})">🗑 Delete</button></div>`;return h}
+function noteText(n){const d=n.d;let t=`${d.title||n.chapter}\n${n.subject} – ${n.chapter}\n\n`;
+ if(d.clean_notes)t+=d.clean_notes+'\n\n';t+='Summary:\n'+(d.summary||'')+'\n';
+ if(d.points)t+='\nImportant points:\n'+d.points.map(p=>'- '+p).join('\n')+'\n';
+ if(d.keywords)t+='\nKeywords:\n'+d.keywords.map(k=>k.term+': '+k.meaning).join('\n');return t}
+async function shareNote(id){const n=getN(id),text=noteText(n);
+ try{const P=window.Capacitor&&Capacitor.Plugins&&Capacitor.Plugins.Share;
+  if(P)await P.share({title:n.chapter,text});else if(navigator.share)await navigator.share({title:n.chapter,text});else{await navigator.clipboard.writeText(text);toast('Copied to clipboard')}}catch(e){}}
+function delNote(id){if(confirm('Delete these notes?')){pDel(id);S.notes=S.notes.filter(n=>n.id!==id);S.quiz=S.quiz.filter(q=>q.id!==id);persist();tab('notes')}}
+/* PHOTO STORE + FLOW/DIAGRAM HELPERS */
+const idb=()=>new Promise((res,rej)=>{const r=indexedDB.open('ainotes',1);r.onupgradeneeded=()=>r.result.createObjectStore('p');r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)});
+const idbDo=async(mode,fn)=>{try{const d=await idb();return await new Promise((res,rej)=>{const t=d.transaction('p',mode),q=fn(t.objectStore('p'));t.oncomplete=()=>res(q&&q.result);t.onerror=()=>rej(t.error)})}catch(e){return null}};
+const pPut=(k,v)=>idbDo('readwrite',o=>o.put(v,k)),pDel=k=>idbDo('readwrite',o=>o.delete(k)),pGet=async k=>(await idbDo('readonly',o=>o.get(k)))||[];
+const fcSteps=d=>(d.flowchart||[]).map(s=>typeof s==='string'?{t:s,k:'step'}:s);
+const brTxt=s=>(s.branches||[]).map(b=>(b.label||'')+' → Step '+b.to).join('   ');
+const fcLines=(s,i)=>(i+1)+'. '+(s.t||'')+(s.k==='decision'&&(s.branches||[]).length?'\n'+brTxt(s):'');
+const flowHTML=d=>{const L=fcSteps(d);return L.map((s,i)=>`<div class="${s.k==='decision'?'dec':''}"><b>${i+1}.</b> ${esc(s.t)}${s.k==='decision'&&(s.branches||[]).length?`<br><small>${esc(brTxt(s))}</small>`:''}</div>${i<L.length-1&&s.k!=='decision'&&s.k!=='end'?'<i>▼</i>':''}`).join('')};
+const diagHTML=x=>`<div class="card"><h3>🖼 ${esc(x.name)}</h3><p>${esc(x.what_it_shows)}</p>${(x.parts||[]).length?'<b>Parts and labels</b>':''}${(x.parts||[]).map(p=>`<div class="kw"><b>${esc(p.label)}</b> – ${esc(p.meaning)}</div>`).join('')}${(x.questions||[]).map(q=>`<div class="dg"><b>${esc(q.q)}</b><details><summary class="mut">Show answer</summary>${esc(q.a)}</details></div>`).join('')}${x.photo_page?`<div class="mut" style="margin-top:8px">From page ${esc(x.photo_page)} of your photos</div>`:''}</div>`;
+/* PROFILE PHOTO */
+const av=(ph,nm,sz)=>`<div class="av" style="width:${sz}px;height:${sz}px;font-size:${sz*.42}px">${ph?`<img src="${ph}">`:esc((nm||'?').trim().charAt(0).toUpperCase()||'?')}</div>`;
+const square=u=>new Promise(res=>{const i=new Image();i.onload=()=>{const s=Math.min(i.width,i.height),c=document.createElement('canvas');c.width=c.height=256;c.getContext('2d').drawImage(i,(i.width-s)/2,(i.height-s)/2,s,s,0,0,256,256);res(c.toDataURL('image/jpeg',.85))};i.onerror=()=>res('');i.src=u});
+async function pickPhoto(){const C=window.Capacitor&&Capacitor.Plugins&&Capacitor.Plugins.Camera;if(!C)return $('#pic').click();
+ try{const p=await C.getPhoto({quality:80,resultType:'base64',source:'PROMPT',promptLabelHeader:'Profile photo',promptLabelPhoto:'Choose from gallery',promptLabelPicture:'Take a photo'});PF.photo=await square('data:image/'+(p.format||'jpeg')+';base64,'+p.base64String);render()}catch(e){}}
+async function picFile(f){if(!f)return;PF.photo=await square(await readFile(f));$('#pic').value='';render()}
+/* PDF */
+function noteBlocks(n,ph){const d=n.d,B=[],a=(t,s)=>{if(s)B.push({t,s:String(s)})};
+ a('h1',d.title||n.chapter);a('sm',`${S.profile.name} · Class ${n.cls||S.profile.cls} · ${n.subject} · ${n.chapter} · ${n.date}`);
+ if(d.clean_notes)d.clean_notes.split('\n').forEach(l=>l.startsWith('## ')?a('h2',l.slice(3)):l.startsWith('- ')?a('li',l.slice(2)):a('p',l.trim()));
+ if(d.summary){a('h2','Summary');a('p',d.summary)}
+ if(d.points&&d.points.length){a('h2','Important points');d.points.forEach(p=>a('li',p))}
+ if(d.keywords&&d.keywords.length){a('h2','Keywords');d.keywords.forEach(k=>a('li',k.term+' – '+k.meaning))}
+ if(d.diagram&&d.diagram.center){a('h2','Concept diagram');a('box',d.diagram.center);(d.diagram.branches||[]).forEach(b=>{a('q',b.label);(b.items||[]).forEach(i=>a('li',i))})}
+ {const L=fcSteps(d);if(L.length){a('h2','Flowchart');a('sm',d.flowchart_from_photo?'Copied from your page':'Made by AI from the chapter');L.forEach((s,i)=>{B.push({t:'box',s:fcLines(s,i),dec:s.k==='decision'});if(i<L.length-1&&s.k!=='decision'&&s.k!=='end')a('arrow','▼')})}}
+ (d.diagrams||[]).forEach(x=>{a('h2','Diagram: '+x.name);a('p',x.what_it_shows);if((x.parts||[]).length){a('q','Parts');x.parts.forEach(p=>a('li',p.label+' – '+p.meaning))}(x.questions||[]).forEach((q,i)=>{a('q','Q'+(i+1)+'. '+q.q);a('p','Ans: '+q.a)});if(x.photo_page)a('sm','See page '+x.photo_page+' of the original photos at the end.')});
+ if(d.mcqs&&d.mcqs.length){a('h2','MCQs');d.mcqs.forEach((q,i)=>{a('q',`Q${i+1}. ${q.q}`);q.options.forEach((o,j)=>a('p','    '+'ABCD'[j]+'. '+o));a('sm','Answer: '+'ABCD'[q.answer]+' – '+(q.why||''))})}
+ if(d.questions&&d.questions.length){a('h2','Revision questions');d.questions.forEach((q,i)=>{a('q',`Q${i+1}. ${q.q}`);a('p','Ans: '+q.a)})}
+ if(ph&&ph.length){B.push({t:'pb'});a('h2','Original pages');ph.forEach((im,i)=>{if(i)B.push({t:'pb'});a('sm','Page '+(i+1));B.push({t:'img',im})})}
+ return B}
+function pdfPages(B){const W=1050,Hh=1485,M=70,FN='"Noto Sans","Noto Sans Oriya","Noto Sans Devanagari",sans-serif',pages=[];let x,y;
+ const np=()=>{const c=document.createElement('canvas');c.width=W;c.height=Hh;x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,W,Hh);x.fillStyle='#7c3aed';x.fillRect(0,0,W,16);y=M;pages.push(c)};
+ const wrap=(s,w)=>{const L=[];let cur='';for(const wd of s.split(' ')){const t=cur?cur+' '+wd:wd;if(x.measureText(t).width<=w)cur=t;else{if(cur)L.push(cur);cur=wd;while(x.measureText(cur).width>w){let k=cur.length;while(k>1&&x.measureText(cur.slice(0,k)).width>w)k--;L.push(cur.slice(0,k));cur=cur.slice(k)}}}L.push(cur);return L};
+ const ST={h1:[44,'700','#12194a'],h2:[32,'700','#7c3aed'],p:[26,'400','#1b1f45'],li:[26,'400','#1b1f45'],q:[26,'700','#1b1f45'],sm:[22,'400','#686c93'],box:[26,'600','#12194a'],arrow:[26,'400','#7c3aed']};
+ np();
+ B.forEach(b=>{if(b.t==='pb'){if(y>M)np();return}if(b.t==='img'){const bw=W-2*M,sc=Math.min(bw/b.im.width,(Hh-2*M-190)/b.im.height),w2=b.im.width*sc,h2=b.im.height*sc;if(y+h2>Hh-M)np();x.drawImage(b.im,(W-w2)/2,y,w2,h2);x.strokeStyle='#d6d2f0';x.lineWidth=2;x.strokeRect((W-w2)/2,y,w2,h2);y+=h2+20;return}
+  const[sz,wt,col]=ST[b.t],lh=sz*1.5,ind=b.t==='li'?40:0,bw=b.t==='box'?W-2*M-240:W-2*M-ind;
+  const f=()=>{x.font=`${wt} ${sz}px ${FN}`};f();
+  const gap=b.t==='h2'?26:b.t==='h1'?0:b.t==='arrow'?0:8;
+  if(b.t==='arrow'){if(y+44>Hh-M)np();x.font=`400 26px ${FN}`;x.fillStyle=col;x.textAlign='center';x.fillText('▼',W/2,y+28);x.textAlign='left';y+=44;return}
+  const L=b.s.split('\n').flatMap(g=>wrap(g,bw)),bh=b.t==='box'?L.length*lh+30:L.length*lh;
+  if(y+gap+(b.t==='h2'?lh*2:Math.min(bh,lh*2))>Hh-M)np();
+  f();y+=gap;
+  if(b.t==='box'){const bx=(W-bw)/2-20,w2=bw+40;x.fillStyle=b.dec?'#fff6dc':'#ede9fe';x.strokeStyle=b.dec?'#f5b301':'#7c3aed';x.lineWidth=3;x.beginPath();x.roundRect?x.roundRect(bx,y,w2,bh,18):x.rect(bx,y,w2,bh);x.fill();x.stroke();x.fillStyle=col;x.textAlign='center';L.forEach((l,i)=>x.fillText(l,W/2,y+15+(i+1)*lh-lh*.3));x.textAlign='left';y+=bh;return}
+  L.forEach(l=>{if(y+lh>Hh-M){np();f()}x.fillStyle=col;if(b.t==='li'&&l===L[0])x.fillText('•',M+12,y+lh*.75);x.fillText(l,M+ind,y+lh*.75);y+=lh})});
+ pages.forEach((c,i)=>{const g=c.getContext('2d');g.font=`400 20px ${FN}`;g.fillStyle='#686c93';g.textAlign='center';g.fillText(`AI Notes Maker · page ${i+1} of ${pages.length}`,W/2,Hh-30)});
+ return pages.map(c=>{const u=c.toDataURL('image/jpeg',.85),r=atob(u.split(',')[1]),d=new Uint8Array(r.length);for(let i=0;i<r.length;i++)d[i]=r.charCodeAt(i);return{d,w:c.width,h:c.height}})}
+function mkPDF(J){const E=new TextEncoder(),P=[],O=[];let len=0;
+ const add=v=>{const b=typeof v==='string'?E.encode(v):v;P.push(b);len+=b.length},obj=(n,fn)=>{O[n]=len;add(n+' 0 obj\n');fn();add('\nendobj\n')};
+ add('%PDF-1.4\n');obj(1,()=>add('<< /Type /Catalog /Pages 2 0 R >>'));
+ obj(2,()=>add('<< /Type /Pages /Count '+J.length+' /Kids ['+J.map((_,i)=>(3+3*i)+' 0 R').join(' ')+'] >>'));
+ J.forEach((j,i)=>{const p=3+3*i,c='q 595 0 0 842 0 0 cm /Im0 Do Q';
+  obj(p,()=>add(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /XObject << /Im0 ${p+2} 0 R >> >> /Contents ${p+1} 0 R >>`));
+  obj(p+1,()=>add(`<< /Length ${c.length} >>\nstream\n${c}\nendstream`));
+  obj(p+2,()=>{add(`<< /Type /XObject /Subtype /Image /Width ${j.w} /Height ${j.h} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${j.d.length} >>\nstream\n`);add(j.d);add('\nendstream')})});
+ const xr=len,tot=3+3*J.length;add('xref\n0 '+tot+'\n0000000000 65535 f \n');for(let n=1;n<tot;n++)add(String(O[n]).padStart(10,'0')+' 00000 n \n');
+ add(`trailer\n<< /Size ${tot} /Root 1 0 R >>\nstartxref\n${xr}\n%%EOF`);
+ const out=new Uint8Array(len);let o=0;P.forEach(b=>{out.set(b,o);o+=b.length});return out}
+const b64=u=>{let s='';for(let i=0;i<u.length;i+=8192)s+=String.fromCharCode.apply(null,u.subarray(i,i+8192));return btoa(s)};
+async function savePDF(id){const n=getN(id);busy('Making your PDF…');
+ try{await new Promise(r=>setTimeout(r,60));let ph=null;if(n.hasPh&&$('#incph')&&$('#incph').checked){const urls=await pGet(n.id);ph=(await Promise.all(urls.map(u=>new Promise(r=>{const i=new Image();i.onload=()=>r(i);i.onerror=()=>r(null);i.src=u})))).filter(Boolean)}
+  const bytes=mkPDF(pdfPages(noteBlocks(n,ph))),name='Notes_'+(n.subject+'_'+n.chapter).replace(/[^A-Za-z0-9]+/g,'_').slice(0,30)+'_'+String(n.id).slice(-5)+'.pdf',C=window.Capacitor&&Capacitor.Plugins;
+  if(C&&C.Filesystem&&C.Share){const r=await C.Filesystem.writeFile({path:name,data:b64(bytes),directory:'CACHE'});busy();await C.Share.share({title:n.chapter,url:r.uri,dialogTitle:'Save or share your PDF'})}
+  else{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([bytes],{type:'application/pdf'}));a.download=name;a.click();busy()}
+  log('note','Downloaded PDF: '+n.chapter)}catch(e){busy();if(!/cancel/i.test(e.message||''))toast('PDF problem: '+e.message)}}
+/* SAVED + REVISE */
+function vNotes(){return S.notes.length?S.notes.map(n=>`<button class="tile" style="width:100%;margin-bottom:10px" onclick="TB='${n.mode==='study'?'ov':'cn'}';go('note',${n.id})"><b style="font-size:17px">${esc(n.chapter)}</b><span>${esc(n.subject)} · ${n.mode==='study'?'Study Guide':'Clean Handwriting'} · ${n.date}</span></button>`).join(''):`<div class="card"><h3>No notes yet</h3><p class="mut">Take a photo of a page to make your first notes.</p><button class="btn" onclick="tab('create')">Make notes</button></div>`}
+function vRevise(){const subs=['All',...new Set(S.notes.map(n=>n.subject))];const l=S.notes.filter(n=>n.mode==='study'&&(RF==='All'||n.subject===RF));
+ return`<div class="chips" style="margin-bottom:12px">${subs.map(s=>`<button class="chip ${RF===s?'on':''}" data-s="${esc(s)}" onclick="RF=this.dataset.s;render()">${esc(s)}</button>`).join('')}</div>`+
+ (l.length?l.map(n=>`<div class="card"><h3>${esc(n.chapter)}</h3><div class="mut">${esc(n.subject)}</div><button class="btn sm" onclick="TB='ov';log('rev','Revised '+${JSON.stringify(n.chapter).replace(/"/g,'&quot;')});go('note',${n.id})">📖 Key points</button><button class="btn sm sec" onclick="startCards(${n.id})">🃏 Flashcards</button><button class="btn sm sec" onclick="startQuiz(${n.id})">🎯 Quiz</button></div>`).join(''):`<div class="card"><h3>Nothing to revise yet</h3><p class="mut">Make a Study Guide first. It gives you key points, flashcards and quizzes for exams.</p><button class="btn" onclick="tab('create')">Make a study guide</button></div>`)}
+/* QUIZ + CARDS */
+function startQuiz(id){const n=getN(id);if(!n||!(n.d.mcqs||[]).length)return toast('No MCQs in this note');Q={id,i:0,score:0,sel:null,done:false};go('quiz')}
+function vQuiz(){const n=getN(Q.id),l=n.d.mcqs;
+ if(Q.done)return`<div class="card" style="text-align:center"><div style="font-size:46px">${Q.score>=l.length*.7?'🏆':'💪'}</div><h3>You scored ${Q.score} / ${l.length}</h3><p class="mut">${Q.score>=l.length*.7?'Great work!':'Keep revising. You will improve.'}</p><button class="btn" onclick="startQuiz(${n.id});H.pop()">Try again</button><button class="btn sec" onclick="back()">Back to notes</button></div>`;
+ const q=l[Q.i];return`<div class="mut">Question ${Q.i+1} of ${l.length}</div><div class="bar" style="margin:6px 0 12px"><i style="width:${Q.i/l.length*100}%"></i></div><div class="card"><h3>${esc(q.q)}</h3>${q.options.map((o,j)=>`<button class="opt ${Q.sel!==null?(j===q.answer?'good':j===Q.sel?'wrong':''):''}" ${Q.sel!==null?'disabled':''} onclick="pick(${j})">${'ABCD'[j]}. ${esc(o)}</button>`).join('')}${Q.sel!==null?`<p class="mut"><b>${Q.sel===q.answer?'Correct!':'Not quite.'}</b> ${esc(q.why)}</p><button class="btn" onclick="nextQ()">${Q.i+1<l.length?'Next':'See score'}</button>`:''}</div>`}
+function pick(j){const q=getN(Q.id).d.mcqs[Q.i];Q.sel=j;if(j===q.answer)Q.score++;render()}
+function nextQ(){const n=getN(Q.id),l=n.d.mcqs;if(Q.i+1<l.length){Q.i++;Q.sel=null}else{Q.done=true;S.quiz.push({id:n.id,subject:n.subject,chapter:n.chapter,score:Q.score,total:l.length,date:today()});log('quiz',`Quiz ${Q.score}/${l.length}: ${n.chapter}`)}render()}
+function startCards(id){const n=getN(id);if(!(n.d.keywords||[]).length)return toast('No keywords in this note');FC={id,i:0,f:false};go('cards')}
+function vCards(){const l=getN(FC.id).d.keywords,k=l[FC.i];
+ return`<div class="mut" style="margin-bottom:8px">Card ${FC.i+1} of ${l.length} · tap the card to flip</div><button class="flash ${FC.f?'back':''}" onclick="FC.f=!FC.f;render()">${esc(FC.f?k.meaning:k.term)}</button>
+ <div class="row"><button class="btn sec" ${FC.i?'':'disabled'} onclick="FC.i--;FC.f=false;render()">← Previous</button><button class="btn" ${FC.i<l.length-1?'':'disabled'} onclick="FC.i++;FC.f=false;render()">Next →</button></div>`}
+/* TUTOR */
+function vTutor(){const n=V.a?getN(V.a):null;
+ return`${n?`<div class="card"><span class="mut">Asking about:</span> <b>${esc(n.chapter)}</b></div>`:''}<div id="chat">${S.chat.length?S.chat.map(m=>`<div class="msg ${m.role==='user'?'u':'a'}">${esc(m.content)}</div>`).join(''):`<div class="msg a">Hi ${esc(S.profile.name)}! I am your study tutor. Ask me any doubt, in English, Hindi or Odia.</div>`}${busyChat?'<div class="msg a">Thinking…</div>':''}</div>
+ <div class="card" style="position:sticky;bottom:80px"><div class="row"><input id="q" placeholder="Type your doubt…" onkeydown="if(event.key==='Enter')ask()"><button class="btn sm" style="margin:0" onclick="ask()">Send</button></div>${S.chat.length?'<button class="btn sm sec" onclick="S.chat=[];persist();render()">Clear chat</button>':''}</div>`}
+async function ask(){const i=$('#q'),t=i.value.trim();if(!t||busyChat)return;const n=V.a?getN(V.a):null,p=S.profile;
+ S.chat.push({role:'user',content:t});busyChat=true;render();
+ const sys=`You are Mitra, a friendly, patient AI tutor for ${p.name}, a Class ${p.cls} student. Explain simply with small examples and encourage them. Keep answers short. Reply in the language the student writes in (English, Hindi or Odia). If unsure, say so honestly.`+(n?` The student is studying "${n.chapter}" (${n.subject}). Notes: ${(n.d.summary||'')} ${(n.d.points||[]).join('; ')}`:'');
+ try{const r=await claude(sys,S.chat.slice(-12).map(m=>({role:m.role,content:m.content})),1200);S.chat.push({role:'assistant',content:r});log('tutor','Asked tutor: '+t.slice(0,40))}
+ catch(e){S.chat.pop();toast(e.message)}busyChat=false;S.chat=S.chat.slice(-30);persist();render()}
+/* PROGRESS */
+function stats(){const days=new Set(S.hist.map(h=>new Date(h.t).toISOString().slice(0,10)));let s=0,d=new Date();
+ if(!days.has(d.toISOString().slice(0,10)))d.setDate(d.getDate()-1);
+ while(days.has(d.toISOString().slice(0,10))){s++;d.setDate(d.getDate()-1)}return{streak:s}}
+function vProgress(){const st=stats(),by={};S.quiz.forEach(q=>{(by[q.subject]=by[q.subject]||{s:0,t:0});by[q.subject].s+=q.score;by[q.subject].t+=q.total});
+ const avg=S.quiz.length?Math.round(S.quiz.reduce((a,q)=>a+q.score/q.total,0)/S.quiz.length*100):0;
+ return`<div class="grid2"><div class="tile"><b>${S.notes.length}</b><span>Notes made</span></div><div class="tile"><b>${S.quiz.length}</b><span>Quizzes taken</span></div><div class="tile"><b>${avg}%</b><span>Average score</span></div><div class="tile"><b>🔥 ${st.streak}</b><span>Day streak</span></div></div>
+ <div class="card" style="margin-top:12px"><h3>Score by subject</h3>${Object.keys(by).map(s=>{const p=Math.round(by[s].s/by[s].t*100);return`<div class="row"><span>${esc(s)}</span><span class="mut">${p}%</span></div><div class="bar" style="margin:3px 0 10px"><i style="width:${p}%"></i></div>`}).join('')||'<span class="mut">Take a quiz to see your progress here.</span>'}</div>
+ <div class="card"><h3>Study history</h3>${S.hist.slice(0,25).map(h=>`<div class="kw"><span>${ico(h.type)} ${esc(h.text)}</span><div class="mut">${new Date(h.t).toLocaleString()}</div></div>`).join('')||'<span class="mut">No activity yet.</span>'}</div>`}
+/* SETTINGS */
+function vSettings(){return`<div class="card"><h3>Claude API key</h3><p class="mut">Needed for reading photos, notes and the tutor. Get it at console.anthropic.com (an adult must create the account). The key is stored only on this phone.</p><input id="k" type="password" value="${esc(S.key)}" placeholder="sk-ant-…"><label>AI model</label><select id="m"><option value="claude-haiku-5-5" ${S.model==='claude-haiku-5-5'?'selected':''}>Haiku 5.5 (fast, low cost)</option><option value="claude-sonnet-5-5" ${S.model==='claude-sonnet-5-5'?'selected':''}>Sonnet 5.5 (better handwriting)</option></select><button class="btn" onclick="S.key=$('#k').value.trim();S.model=$('#m').value;persist();toast('Saved');tab('home')">Save</button></div>
+ <div class="card"><button class="btn sec" onclick="PF=null;go('profile')">Edit profile</button><button class="btn red" onclick="if(confirm('Delete ALL notes, history and profile?')){localStorage.clear();indexedDB.deleteDatabase('ainotes');location.reload()}">Reset app</button></div>`}
+let lastBack=0;
+(function(){const A=window.Capacitor&&Capacitor.Plugins&&Capacitor.Plugins.App;if(!A)return;
+ A.addListener('backButton',()=>{if($('#busy').classList.contains('on'))return;
+  if(H.length)return back();
+  if(V.v!=='home'&&S.profile)return tab('home');
+  if(Date.now()-lastBack<2000)return A.exitApp();
+  lastBack=Date.now();toast('Press back again to exit')})})();
+render();
+</script></body></html>
