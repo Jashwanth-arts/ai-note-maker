@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>AI Notes Maker</title>
+<title>Student Note Maker</title>
 <style>
 :root{--navy:#12194a;--navy2:#232d7a;--pur:#7c3aed;--lil:#ede9fe;--bg:#f3f2fb;--tx:#1b1f45;--mu:#686c93;--ok:#15803d;--bad:#c62828;--gold:#f5b301}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -89,7 +89,7 @@ function log(type,text){S.hist.unshift({t:Date.now(),type,text});S.hist=S.hist.s
 function render(){
  if(!S.profile&&V.v!=='profile'){V={v:'profile'};H=[]}
  const M={profile:vProfile,home:vHome,create:vCreate,note:vNote,notes:vNotes,tutor:vTutor,revise:vRevise,progress:vProgress,settings:vSettings,quiz:vQuiz,cards:vCards};
- const T={profile:'Your profile',home:'AI Notes Maker',create:'Make notes',note:'Notes',notes:'Saved notes',tutor:'AI Tutor',revise:'Exam revision',progress:'My progress',settings:'Settings',quiz:'Quiz',cards:'Flashcards'};
+ const T={profile:'Your profile',home:'Student Note Maker',create:'Make notes',note:'Notes',notes:'Saved notes',tutor:'AI Tutor',revise:'Exam revision',progress:'My progress',settings:'Settings',quiz:'Quiz',cards:'Flashcards'};
  const top=['home','notes','tutor','progress','revise'].includes(V.v);
  const nb=(v,i,l,c)=>`<button class="${c||''} ${V.v===v?'on':''}" onclick="tab('${v}')"><b>${i}</b>${l}</button>`;
  $('#app').innerHTML=`<header>${top||V.v==='profile'&&!S.profile?'':'<button onclick="back()">←</button>'}<h1>${T[V.v]}</h1>${S.profile?'<button onclick="go(\'settings\')">⚙</button>':''}</header><main>${M[V.v]()}</main>${S.profile?`<nav>${nb('home','🏠','Home')}${nb('notes','📚','Notes')}${nb('create','＋','Create','plus').replace("tab('create')","tab('create')")}${nb('tutor','💬','Tutor')}${nb('progress','📈','Progress')}</nav>`:''}`;
@@ -150,7 +150,7 @@ async function generate(){
  :`{"title":"","clean_notes":"lines: '## ' heading, '- ' bullet, plain text","summary":"","flowchart":[{"t":"step text","k":"start|step|decision|end","branches":[{"label":"Yes","to":1}]}],"flowchart_from_photo":false,"diagrams":[{"name":"","what_it_shows":"","parts":[{"label":"","meaning":""}],"questions":[{"q":"","a":""}],"photo_page":1}]}`;
  const flowRule=`FLOWCHART: if the pages contain a flowchart (boxes and arrows, steps in sequence, or decision diamonds), COPY it faithfully: list every box in the same order as drawn, keep the student's own wording (only fix spelling), set "k" to "decision" for decision diamonds with "branches" giving each label (for example Yes or No) and "to" = the step number (1 = first box in your list) it leads to, use "start" and "end" when shown, and set "flowchart_from_photo" to true. `+(study?`If there is no flowchart on the pages, create a clear 4-8 step flowchart of a process or sequence from the chapter and set "flowchart_from_photo" to false.`:`If there is no flowchart on the pages, use [] and set "flowchart_from_photo" to false.`);
  const diagRule=`DIAGRAMS: for every real picture or diagram on the pages (maximum 4; skip decorations) give its "name", "what_it_shows" (1-2 simple sentences), "parts" (every label or part you can read, with a simple meaning), 2 "questions" with short answers, and "photo_page" (the page number it is on). If a label is unreadable write "label not clear" rather than guessing. If there are no diagrams use [].`;
- const rules=(study?`Create: summary (5-7 sentences), 8-12 keywords with simple meanings, 8-12 important points, a concept diagram (center + 3-5 branches with 2-4 items), EXACTLY 10 MCQs (4 options, "answer" is the 0-based index, short "why"), and 6 extra revision questions with short answers. `:`Rewrite the handwriting as clean, correct, well-organised notes with headings and bullet points, fixing spelling. Keep the student's content; do not add new topics. Add a short summary. `)+flowRule+' '+diagRule;
+ const rules=(study?`Create: summary (5-7 sentences), 8-12 keywords with simple meanings, 8-12 important points, a concept diagram (center + 3-5 branches with 2-4 items), EXACTLY 10 MCQs (4 options, "answer" is the 0-based index, short "why"), and 6 extra revision questions with short answers. `:`Rewrite the handwriting as clean, correct, well-organised notes with headings and bullet points, fixing spelling. Keep the student's content; do not add new topics. Add a short summary. `)+flowRule+' '+diagRule+' Silently ignore anything that is crossed out, and never write remarks about the page itself (such as crossed-out text or an incomplete page) inside the notes.';
  const sys=`You are a kind expert teacher for a Class ${p.cls} student. Read the photos (handwriting or textbook pages) for subject "${F.subject}", chapter "${F.chapter}". ${rules} Write all text in ${F.lang}, in simple words suited to Class ${p.cls}. Reply with ONLY valid JSON, no markdown fences, in this exact shape: ${shape}`;
  const content=[];imgs.forEach((u,i)=>{content.push({type:'text',text:'Page '+(i+1)+':'});content.push({type:'image',source:{type:'base64',media_type:'image/jpeg',data:u.split(',')[1]}})});
  content.push({type:'text',text:'Make the JSON now.'});
@@ -188,6 +188,8 @@ async function shareNote(id){const n=getN(id),text=noteText(n);
   if(P)await P.share({title:n.chapter,text});else if(navigator.share)await navigator.share({title:n.chapter,text});else{await navigator.clipboard.writeText(text);toast('Copied to clipboard')}}catch(e){}}
 function delNote(id){if(confirm('Delete these notes?')){pDel(id);S.notes=S.notes.filter(n=>n.id!==id);S.quiz=S.quiz.filter(q=>q.id!==id);persist();tab('notes')}}
 /* PHOTO STORE + FLOW/DIAGRAM HELPERS */
+const stamp=()=>new Date().toLocaleString('en-IN',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit',hour12:true});
+const CREDIT='AI notes generated by - BBPS : Rajvika, Arpita, Shreya and Priyanshi';
 const idb=()=>new Promise((res,rej)=>{const r=indexedDB.open('ainotes',1);r.onupgradeneeded=()=>r.result.createObjectStore('p');r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)});
 const idbDo=async(mode,fn)=>{try{const d=await idb();return await new Promise((res,rej)=>{const t=d.transaction('p',mode),q=fn(t.objectStore('p'));t.oncomplete=()=>res(q&&q.result);t.onerror=()=>rej(t.error)})}catch(e){return null}};
 const pPut=(k,v)=>idbDo('readwrite',o=>o.put(v,k)),pDel=k=>idbDo('readwrite',o=>o.delete(k)),pGet=async k=>(await idbDo('readonly',o=>o.get(k)))||[];
@@ -204,7 +206,7 @@ async function pickPhoto(){const C=window.Capacitor&&Capacitor.Plugins&&Capacito
 async function picFile(f){if(!f)return;PF.photo=await square(await readFile(f));$('#pic').value='';render()}
 /* PDF */
 function noteBlocks(n,ph){const d=n.d,B=[],a=(t,s)=>{if(s)B.push({t,s:String(s)})};
- a('h1',d.title||n.chapter);a('sm',`${S.profile.name} · Class ${n.cls||S.profile.cls} · ${n.subject} · ${n.chapter} · ${n.date}`);
+ a('h1',d.title||n.chapter);a('sm',`${S.profile.name} · Class ${n.cls||S.profile.cls} · ${n.subject} · ${n.chapter}`);a('sm','PDF created: '+stamp());
  if(d.clean_notes)d.clean_notes.split('\n').forEach(l=>l.startsWith('## ')?a('h2',l.slice(3)):l.startsWith('- ')?a('li',l.slice(2)):a('p',l.trim()));
  if(d.summary){a('h2','Summary');a('p',d.summary)}
  if(d.points&&d.points.length){a('h2','Important points');d.points.forEach(p=>a('li',p))}
@@ -221,17 +223,17 @@ function pdfPages(B){const W=1050,Hh=1485,M=70,FN='"Noto Sans","Noto Sans Oriya"
  const wrap=(s,w)=>{const L=[];let cur='';for(const wd of s.split(' ')){const t=cur?cur+' '+wd:wd;if(x.measureText(t).width<=w)cur=t;else{if(cur)L.push(cur);cur=wd;while(x.measureText(cur).width>w){let k=cur.length;while(k>1&&x.measureText(cur.slice(0,k)).width>w)k--;L.push(cur.slice(0,k));cur=cur.slice(k)}}}L.push(cur);return L};
  const ST={h1:[44,'700','#12194a'],h2:[32,'700','#7c3aed'],p:[26,'400','#1b1f45'],li:[26,'400','#1b1f45'],q:[26,'700','#1b1f45'],sm:[22,'400','#686c93'],box:[26,'600','#12194a'],arrow:[26,'400','#7c3aed']};
  np();
- B.forEach(b=>{if(b.t==='pb'){if(y>M)np();return}if(b.t==='img'){const bw=W-2*M,sc=Math.min(bw/b.im.width,(Hh-2*M-190)/b.im.height),w2=b.im.width*sc,h2=b.im.height*sc;if(y+h2>Hh-M)np();x.drawImage(b.im,(W-w2)/2,y,w2,h2);x.strokeStyle='#d6d2f0';x.lineWidth=2;x.strokeRect((W-w2)/2,y,w2,h2);y+=h2+20;return}
+ B.forEach(b=>{if(b.t==='pb'){if(y>M)np();return}if(b.t==='img'){const bw=W-2*M,sc=Math.min(bw/b.im.width,(Hh-2*M-190)/b.im.height),w2=b.im.width*sc,h2=b.im.height*sc;if(y+h2>Hh-M-40)np();x.drawImage(b.im,(W-w2)/2,y,w2,h2);x.strokeStyle='#d6d2f0';x.lineWidth=2;x.strokeRect((W-w2)/2,y,w2,h2);y+=h2+20;return}
   const[sz,wt,col]=ST[b.t],lh=sz*1.5,ind=b.t==='li'?40:0,bw=b.t==='box'?W-2*M-240:W-2*M-ind;
   const f=()=>{x.font=`${wt} ${sz}px ${FN}`};f();
   const gap=b.t==='h2'?26:b.t==='h1'?0:b.t==='arrow'?0:8;
-  if(b.t==='arrow'){if(y+44>Hh-M)np();x.font=`400 26px ${FN}`;x.fillStyle=col;x.textAlign='center';x.fillText('▼',W/2,y+28);x.textAlign='left';y+=44;return}
+  if(b.t==='arrow'){if(y+44>Hh-M-40)np();x.font=`400 26px ${FN}`;x.fillStyle=col;x.textAlign='center';x.fillText('▼',W/2,y+28);x.textAlign='left';y+=44;return}
   const L=b.s.split('\n').flatMap(g=>wrap(g,bw)),bh=b.t==='box'?L.length*lh+30:L.length*lh;
-  if(y+gap+(b.t==='h2'?lh*2:Math.min(bh,lh*2))>Hh-M)np();
+  if(y+gap+(b.t==='h2'?lh*2:Math.min(bh,lh*2))>Hh-M-40)np();
   f();y+=gap;
   if(b.t==='box'){const bx=(W-bw)/2-20,w2=bw+40;x.fillStyle=b.dec?'#fff6dc':'#ede9fe';x.strokeStyle=b.dec?'#f5b301':'#7c3aed';x.lineWidth=3;x.beginPath();x.roundRect?x.roundRect(bx,y,w2,bh,18):x.rect(bx,y,w2,bh);x.fill();x.stroke();x.fillStyle=col;x.textAlign='center';L.forEach((l,i)=>x.fillText(l,W/2,y+15+(i+1)*lh-lh*.3));x.textAlign='left';y+=bh;return}
-  L.forEach(l=>{if(y+lh>Hh-M){np();f()}x.fillStyle=col;if(b.t==='li'&&l===L[0])x.fillText('•',M+12,y+lh*.75);x.fillText(l,M+ind,y+lh*.75);y+=lh})});
- pages.forEach((c,i)=>{const g=c.getContext('2d');g.font=`400 20px ${FN}`;g.fillStyle='#686c93';g.textAlign='center';g.fillText(`AI Notes Maker · page ${i+1} of ${pages.length}`,W/2,Hh-30)});
+  L.forEach(l=>{if(y+lh>Hh-M-40){np();f()}x.fillStyle=col;if(b.t==='li'&&l===L[0])x.fillText('•',M+12,y+lh*.75);x.fillText(l,M+ind,y+lh*.75);y+=lh})});
+ const st=stamp();pages.forEach((c,i)=>{const g=c.getContext('2d');g.textAlign='center';g.fillStyle='#e0dcf5';g.fillRect(M,Hh-92,W-2*M,2);g.font=`600 21px ${FN}`;g.fillStyle='#12194a';g.fillText(CREDIT,W/2,Hh-60);g.font=`400 18px ${FN}`;g.fillStyle='#686c93';g.fillText(`Student Note Maker · ${st} · page ${i+1} of ${pages.length}`,W/2,Hh-30)});
  return pages.map(c=>{const u=c.toDataURL('image/jpeg',.85),r=atob(u.split(',')[1]),d=new Uint8Array(r.length);for(let i=0;i<r.length;i++)d[i]=r.charCodeAt(i);return{d,w:c.width,h:c.height}})}
 function mkPDF(J){const E=new TextEncoder(),P=[],O=[];let len=0;
  const add=v=>{const b=typeof v==='string'?E.encode(v):v;P.push(b);len+=b.length},obj=(n,fn)=>{O[n]=len;add(n+' 0 obj\n');fn();add('\nendobj\n')};
